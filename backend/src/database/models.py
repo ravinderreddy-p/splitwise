@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, Column, String, Date, DateTime
 
 database_name = 'split_wise'
-database_path = 'XYZ'
+database_path = 'postgres://pravinderreddy@localhost:5432/split_wise'
 
 db = SQLAlchemy()
 
@@ -58,6 +58,7 @@ class Expense(db.Model):
 
 class UserBalance(db.Model):
     __tablename__= 'userbalance'
+    id = Column(Integer, primary_key=True)
     user1 = Column(String)
     user2 = Column(String)
     balance = Column(Integer)
