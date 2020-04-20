@@ -1,3 +1,5 @@
+from sqlalchemy import and_, or_
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from .database import models
@@ -44,8 +46,19 @@ def create_app(test_config=None):
             if paid_by == user:
                 continue
 
-            user_balance = UserBalance(user1=paid_by, user2=user, balance=split_amt_each)
-            db.session.add(user_balance)
+            user_id = UserBalance.query.with_entities(UserBalance.id) \
+                .filter(and_(or_(UserBalance.user1 == paid_by, UserBalance.user2 == paid_by),
+                             or_(UserBalance.user2 == user, UserBalance.user1 == user))).first()
+
+            if user_id is None:
+                user_balance = UserBalance(user1=paid_by, user2=user, balance=split_amt_each)
+                db.session.add(user_balance)
+            else:
+                for user in user_id:
+                    id = user
+                    print(id)
+                user_bal = UserBalance.query.filter(UserBalance.id == id).one_or_none()
+                user_bal.balance -= split_amt_each
 
         db.session.commit()
         return jsonify({
