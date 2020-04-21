@@ -2,8 +2,11 @@ from sqlalchemy import and_, or_
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from .calculate_share import CalculateShare, calculate_each_share
 from .database import models
 from .database.models import Expense, db, setup_db, UserBalance
+from .expenses import add_expense
+from .user_balance import update_user_balance
 
 
 def create_app(test_config=None):
@@ -26,41 +29,16 @@ def create_app(test_config=None):
         body = request.get_json()
         description = body.get('description')
         paid_by = body.get('paid_by')
-        amount = body.get('amount')
+        expense_amount = body.get('amount')
         team = body.get('team')
-        split_with = body.get('split_with')
+        expense_shared_by = body.get('split_with')
         date_timestamp = body.get('timestamp')
-
-        no_users = len(split_with.split(','))
-        split_amt_each = int(amount)/no_users
-
-        expense = Expense(description=description,
-                          amount=amount,
-                          paid_by=paid_by,
-                          split_with=split_with,
-                          date_time=date_timestamp)
-
-        db.session.add(expense)
-
-        for user in split_with.split(','):
-            if paid_by == user:
-                continue
-
-            user_id = UserBalance.query.with_entities(UserBalance.id) \
-                .filter(and_(or_(UserBalance.user1 == paid_by, UserBalance.user2 == paid_by),
-                             or_(UserBalance.user2 == user, UserBalance.user1 == user))).first()
-
-            if user_id is None:
-                user_balance = UserBalance(user1=paid_by, user2=user, balance=split_amt_each)
-                db.session.add(user_balance)
-            else:
-                for user in user_id:
-                    id = user
-                    print(id)
-                user_bal = UserBalance.query.filter(UserBalance.id == id).one_or_none()
-                user_bal.balance -= split_amt_each
+        add_expense(description, expense_amount, paid_by, expense_shared_by, date_timestamp)
+        each_person_share_amount = calculate_each_share(expense_amount, expense_shared_by)
+        update_user_balance(paid_by, expense_shared_by, each_person_share_amount)
 
         db.session.commit()
+
         return jsonify({
             'success': 'true'
         })
