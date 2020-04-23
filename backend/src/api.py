@@ -38,7 +38,7 @@ def create_app(test_config=None):
 
         each_person_share_amount = calculate_each_share(expense_amount, expense_shared_by)
 
-        update_user_balance(paid_by, expense_shared_by, each_person_share_amount)
+        update_user_balance(paid_by.strip(), expense_shared_by, each_person_share_amount)
 
         db.session.commit()
 

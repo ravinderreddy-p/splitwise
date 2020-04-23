@@ -19,20 +19,23 @@ def add_to_user_balance(expense_paid_by, shared_by_user, each_person_share_amoun
 def update_existing_user_balance(exist_users, each_person_share_amount):
     for exist_user_id in exist_users:
         user_bal = UserBalance.query.filter(UserBalance.id == exist_user_id).one_or_none()
-        user_bal.balance -= each_person_share_amount
+        if user_bal.balance < 0:
+            user_bal.balance += each_person_share_amount
+        else:
+            user_bal.balance -= each_person_share_amount
 
 
 def update_user_balance(expense_paid_by, expense_shared_by, each_person_share_amount):
 
     for shared_by_user in expense_shared_by.split(','):
 
-        if expense_paid_by == shared_by_user:
+        if expense_paid_by == shared_by_user.strip():
             continue
 
-        exist_users = get_existing_user(expense_paid_by, shared_by_user)
+        exist_users = get_existing_user(expense_paid_by, shared_by_user.strip())
 
         if exist_users is None:
-            add_to_user_balance(expense_paid_by, shared_by_user, each_person_share_amount)
+            add_to_user_balance(expense_paid_by, shared_by_user.strip(), each_person_share_amount)
 
         else:
             update_existing_user_balance(exist_users, each_person_share_amount)
