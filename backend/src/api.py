@@ -33,8 +33,11 @@ def create_app(test_config=None):
         team = body.get('team')
         expense_shared_by = body.get('split_with')
         date_timestamp = body.get('timestamp')
+
         add_expense(description, expense_amount, paid_by, expense_shared_by, date_timestamp)
+
         each_person_share_amount = calculate_each_share(expense_amount, expense_shared_by)
+
         update_user_balance(paid_by, expense_shared_by, each_person_share_amount)
 
         db.session.commit()
