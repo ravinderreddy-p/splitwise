@@ -16,10 +16,10 @@ def add_to_user_balance(expense_paid_by, shared_by_user, each_person_share_amoun
     db.session.add(user_balance)
 
 
-def update_existing_user_balance(exist_users, each_person_share_amount):
+def update_existing_user_balance(exist_users, each_person_share_amount, expense_paid_by):
     for exist_user_id in exist_users:
         user_bal = UserBalance.query.filter(UserBalance.id == exist_user_id).one_or_none()
-        if user_bal.balance < 0:
+        if user_bal.user1 == expense_paid_by:
             user_bal.balance += each_person_share_amount
         else:
             user_bal.balance -= each_person_share_amount
@@ -38,7 +38,7 @@ def update_user_balance(expense_paid_by, expense_shared_by, each_person_share_am
             add_to_user_balance(expense_paid_by, shared_by_user.strip(), each_person_share_amount)
 
         else:
-            update_existing_user_balance(exist_users, each_person_share_amount)
+            update_existing_user_balance(exist_users, each_person_share_amount, expense_paid_by)
 
 
 class User(object):
