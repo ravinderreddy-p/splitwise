@@ -1,3 +1,5 @@
+import decimal
+
 from sqlalchemy import and_, or_
 
 from .database.models import UserBalance, db
@@ -20,9 +22,9 @@ def update_existing_user_balance(exist_users, each_person_share_amount, expense_
     for exist_user_id in exist_users:
         user_bal = UserBalance.query.filter(UserBalance.id == exist_user_id).one_or_none()
         if user_bal.user1 == expense_paid_by:
-            user_bal.balance += each_person_share_amount
+            user_bal.balance += decimal.Decimal(each_person_share_amount)
         else:
-            user_bal.balance -= each_person_share_amount
+            user_bal.balance -= decimal.Decimal(each_person_share_amount)
 
 
 def update_user_balance(expense_paid_by, expense_shared_by, each_person_share_amount):

@@ -16,7 +16,7 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
-    migrate = Migrate(app, db)
+    migrate = Migrate()
     db.init_app(app)
     migrate.init_app(app, db)
     # db.create_all()
@@ -64,7 +64,7 @@ class UserBalance(db.Model):
     id = Column(Integer, primary_key=True)
     user1 = Column(String)
     user2 = Column(String)
-    balance = Column(Float)
+    balance = Column(db.Numeric(10, 2))
 
     def __init__(self, user1, user2, balance):
         self.user1 = user1
