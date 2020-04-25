@@ -1,4 +1,5 @@
 from sqlalchemy import and_, or_
+import simplejson as json
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -44,6 +45,35 @@ def create_app(test_config=None):
 
         return jsonify({
             'success': 'true'
+        })
+    
+    @app.route('/dashboard', methods=['GET'])
+    def display_dashboard():
+        user_owed = 0
+        user_lent = 0
+
+        user1_balance = UserBalance.query.filter(UserBalance.user1 == 'Ravi').all()
+        user2_balance = UserBalance.query.filter(UserBalance.user2 == 'Ravi').all()
+        
+        for user in user1_balance:
+            if user.balance < 0:
+                user_owed += user.balance
+
+            else:
+                user_lent += user.balance
+        
+        for user in user2_balance:
+            if user.balance < 0:
+                user.balance *= (-1)
+                user_lent += user.balance
+            else:
+                user_owed += user.balance
+        
+        return jsonify({
+            'user': 'Ravi',
+            'user_lent': user_lent,
+            'user_owed': user_owed
+
         })
 
     return app
