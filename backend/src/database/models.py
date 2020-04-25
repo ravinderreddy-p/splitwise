@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, Column, String, Date, DateTime
+from sqlalchemy import Integer, Column, String, Date, DateTime, Float
+from flask_migrate import Migrate
 
 database_name = 'split_wise'
 database_path = 'postgres://pravinderreddy@localhost:5432/split_wise'
@@ -15,8 +16,10 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
+    migrate = Migrate(app, db)
     db.init_app(app)
-    db.create_all()
+    migrate.init_app(app, db)
+    # db.create_all()
 
 
 '''
@@ -26,7 +29,7 @@ class Expense(db.Model):
     __tablename__ = 'expenses'
     id = Column(Integer, primary_key=True)
     description = Column(String)
-    amount = Column(Integer)
+    amount = Column(Float)
     paid_by = Column(String)
     split_with = Column(String)
     date_time = Column(DateTime)
@@ -61,7 +64,7 @@ class UserBalance(db.Model):
     id = Column(Integer, primary_key=True)
     user1 = Column(String)
     user2 = Column(String)
-    balance = Column(Integer)
+    balance = Column(Float)
 
     def __init__(self, user1, user2, balance):
         self.user1 = user1
