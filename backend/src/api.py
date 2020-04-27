@@ -8,6 +8,7 @@ from .database import models
 from .database.models import Expense, db, setup_db, UserBalance, User
 from .expenses import add_expense
 from .user_balance import update_user_balance
+from .expense_split import ExpenseSplit
 
 
 def create_app(test_config=None):
@@ -33,22 +34,11 @@ def create_app(test_config=None):
         paid_by = body.get('paid_by')
         expense_amount = body.get('amount')
         team = body.get('team')
-        # expense_shared_by = body.get('split_with')
         date_timestamp = body.get('timestamp')
 
-        # convert names to ID feature
         expense_split_with = body.get('split_by').split(',')
 
-        users = User.query.with_entities(User.name)\
-            .filter(or_(User.id == int(expense_split_with[0]),
-                        User.id == int(expense_split_with[1]),
-                        User.id == int(expense_split_with[2]))).all()
-
-        for user in users:
-            user_list.append(user[0])
-
-        expense_shared_by = ",".join(user_list)
-        print(expense_shared_by)
+        expense_shared_by = ExpenseSplit.convert_user_id_to_name(expense_split_with)
 
         add_expense(description, expense_amount, paid_by, expense_shared_by, date_timestamp)
 
