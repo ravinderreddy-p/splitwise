@@ -102,10 +102,10 @@ User
 class User(db.Model):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    user = Column(String)
+    name = Column(String)
 
-    def __init__(self, user):
-        self.user = user
+    def __init__(self, name):
+        self.name = name
 
     def insert(self):
         db.session.add()
@@ -116,5 +116,5 @@ class User(db.Model):
 
     def format(self):
         return {
-            'user1': self.user
+            'user': self.name
         }

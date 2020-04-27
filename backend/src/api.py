@@ -27,13 +27,28 @@ def create_app(test_config=None):
 
     @app.route('/transaction', methods=['POST'])
     def add_transaction():
+        user_list = []
         body = request.get_json()
         description = body.get('description')
         paid_by = body.get('paid_by')
         expense_amount = body.get('amount')
         team = body.get('team')
-        expense_shared_by = body.get('split_with')
+        # expense_shared_by = body.get('split_with')
         date_timestamp = body.get('timestamp')
+
+        # convert names to ID feature
+        expense_split_with = body.get('split_by').split(',')
+
+        users = User.query.with_entities(User.name)\
+            .filter(or_(User.id == int(expense_split_with[0]),
+                        User.id == int(expense_split_with[1]),
+                        User.id == int(expense_split_with[2]))).all()
+
+        for user in users:
+            user_list.append(user[0])
+
+        expense_shared_by = ",".join(user_list)
+        print(expense_shared_by)
 
         add_expense(description, expense_amount, paid_by, expense_shared_by, date_timestamp)
 
@@ -92,7 +107,7 @@ def create_app(test_config=None):
     def add_user():
         body = request.get_json()
         user_name = body.get('user_name')
-        user = User(user=user_name)
+        user = User(name=user_name)
         db.session.add(user)
         db.session.commit()
 
