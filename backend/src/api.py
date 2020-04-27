@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from .calculate_share import CalculateShare, calculate_each_share
 from .database import models
-from .database.models import Expense, db, setup_db, UserBalance
+from .database.models import Expense, db, setup_db, UserBalance, User
 from .expenses import add_expense
 from .user_balance import update_user_balance
 
@@ -85,6 +85,20 @@ def create_app(test_config=None):
             'user_lent_to': user_lent_to,
             'user_owed_to': user_owed_to
 
+        })
+
+
+    @app.route('/user', methods=['POST'])
+    def add_user():
+        body = request.get_json()
+        user_name = body.get('user_name')
+        user = User(user=user_name)
+        db.session.add(user)
+        db.session.commit()
+
+        return jsonify({
+            "user": user_name,
+            "success": "true"
         })
 
     return app

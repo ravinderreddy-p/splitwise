@@ -12,6 +12,7 @@ setup_db(app)
     binds a flask application and a SQLAlchemy service
 '''
 
+
 def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -25,6 +26,8 @@ def setup_db(app, database_path=database_path):
 '''
 Expenses
 '''
+
+
 class Expense(db.Model):
     __tablename__ = 'expenses'
     id = Column(Integer, primary_key=True)
@@ -59,8 +62,13 @@ class Expense(db.Model):
         }
 
 
+'''
+UserBalance
+'''
+
+
 class UserBalance(db.Model):
-    __tablename__= 'userbalance'
+    __tablename__ = 'userbalance'
     id = Column(Integer, primary_key=True)
     user1 = Column(String)
     user2 = Column(String)
@@ -83,4 +91,30 @@ class UserBalance(db.Model):
             'user1': self.user1,
             'user2': self.user2,
             'balance': self.balance
+        }
+
+
+'''
+User
+'''
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    user = Column(String)
+
+    def __init__(self, user):
+        self.user = user
+
+    def insert(self):
+        db.session.add()
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def format(self):
+        return {
+            'user1': self.user
         }
