@@ -33,12 +33,10 @@ def create_app(test_config=None):
         description = body.get('description')
         paid_by = body.get('paid_by')
         expense_amount = body.get('amount')
-        team = body.get('team')
+        expense_split_by = body.get('split_by').split(',')
         date_timestamp = body.get('timestamp')
 
-        expense_split_with = body.get('split_by').split(',')
-
-        expense_shared_by = ExpenseSplit.convert_user_id_to_name(expense_split_with)
+        expense_shared_by = ExpenseSplit.convert_user_id_to_name(expense_split_by)
 
         add_expense(description, expense_amount, paid_by, expense_shared_by, date_timestamp)
 
