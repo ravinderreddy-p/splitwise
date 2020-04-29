@@ -7,7 +7,7 @@ from .calculate_share import CalculateShare, calculate_each_share
 from .database import models
 from .database.models import Expense, db, setup_db, UserBalance, User
 from .expenses import add_expense
-from .user_balance import update_user_balance
+from .user_balance import UsersBalanceUpdate
 from .expense_split import ExpenseSplit
 from .add_new_user import AddNewUser
 
@@ -43,7 +43,7 @@ def create_app(test_config=None):
 
         each_person_share_amount = calculate_each_share(expense_amount, expense_shared_by)
 
-        update_user_balance(paid_by.strip(), expense_shared_by, each_person_share_amount)
+        UsersBalanceUpdate.update_user_balance(paid_by.strip(), expense_shared_by, each_person_share_amount)
 
         db.session.commit()
 
