@@ -52,15 +52,16 @@ def create_app(test_config=None):
             'success': 'true'
         })
 
-    @app.route('/dashboard', methods=['GET'])
-    def display_dashboard():
+    @app.route('/dashboard/<int:user_id>', methods=['GET'])
+    def display_dashboard(user_id):
+        user_name, \
         total_user_owed_amount, \
         total_user_lent_amount, \
         individual_owed_details, \
-        individual_lent_details = UserDashboard().display_user_dashboard()
+        individual_lent_details = UserDashboard().display_user_dashboard(user_id)
 
         return jsonify({
-            'user': 'Ravi',
+            'user': user_name,
             'user_lent': total_user_lent_amount,
             'user_owed': total_user_owed_amount,
             'user_lent_to': individual_lent_details,
