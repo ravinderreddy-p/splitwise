@@ -1,3 +1,4 @@
+from werkzeug.exceptions import abort
 from .database.models import UserBalance, User
 
 
@@ -7,6 +8,10 @@ class UserDashboard(object):
 
     def display_user_dashboard(self, user_id):
         user_name_from_model = User.query.with_entities(User.name).filter(User.id == user_id).one_or_none()
+
+        if user_name_from_model is None:
+            abort(404)
+
         user_name = user_name_from_model[0]
         total_user_owed_amount = 0
         total_user_lent_amount = 0
