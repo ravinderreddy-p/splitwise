@@ -5,8 +5,8 @@ class AddNewUser(object):
     def __init__(self):
         pass
 
-    def add_new_user(self):
-        user_name = self.get('user_name')
+    def add_new_user(self, request_body):
+        user_name = request_body.get('user_name')
         user = User(name=user_name)
         db.session.add(user)
         db.session.commit()
