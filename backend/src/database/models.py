@@ -33,15 +33,15 @@ class Expense(db.Model):
     id = Column(Integer, primary_key=True)
     description = Column(String)
     amount = Column(Float)
-    paid_by = Column(String)
-    split_with = Column(String)
+    payee = Column(Integer)
+    list_of_receivers = Column(db.ARRAY(db.Integer()))
     date_time = Column(DateTime)
 
-    def __init__(self, description, amount, paid_by, split_with, date_time):
+    def __init__(self, description, amount, payee, list_of_receivers, date_time):
         self.description = description
         self.amount = amount
-        self.paid_by = paid_by
-        self.split_with = split_with
+        self.payee = payee
+        self.list_of_receivers = list_of_receivers
         self.date_time = date_time
 
     def insert(self):
@@ -56,8 +56,8 @@ class Expense(db.Model):
             'id': self.id,
             'description': self.description,
             'amount': self.amount,
-            'paid_by': self.paid_by,
-            'split_with': self.split_with,
+            'paid_by': self.payee,
+            'split_with': self.list_of_receivers,
             'date_time': self.date_time
         }
 
@@ -70,8 +70,8 @@ UserBalance
 class UserBalance(db.Model):
     __tablename__ = 'userbalance'
     id = Column(Integer, primary_key=True)
-    user1 = Column(String)
-    user2 = Column(String)
+    user1 = Column(Integer)
+    user2 = Column(Integer)
     balance = Column(db.Numeric(10, 2))
 
     def __init__(self, user1, user2, balance):

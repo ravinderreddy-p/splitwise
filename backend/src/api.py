@@ -3,12 +3,11 @@ import simplejson as json
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from .calculate_share import CalculateShare, calculate_each_share
+from .calculate_share import CalculateShare, calculate_share_per_receiver
 from .database import models
 from .database.models import Expense, db, setup_db, UserBalance, User
 from .expenses import add_expense
-from .user_balance import UsersBalanceUpdate
-from .expense_split import ExpenseSplit
+from .user_balance import update_all_peer_to_peer_records
 from .add_new_user import AddNewUser
 from .user_dashboard import UserDashboard
 
@@ -24,30 +23,22 @@ def create_app(test_config=None):
         response.headers.add('Access-Control-Allow-Methods', 'GET, PUT, POST, PATCH, DELETE, OPTIONS')
         return response
 
-    @app.route('/')
+    @app.route('/health_check')
     def index():
-        return 'Hello World'
+        return 'I am healthy'
 
     @app.route('/transaction', methods=['POST'])
     def add_transaction():
-        user_list = []
         body = request.get_json()
         description = body.get('description')
-        paid_by = body.get('paid_by')
+        payee = body.get('payee')
         expense_amount = body.get('amount')
-        expense_split_by = body.get('split_by').split(',')
+        list_of_receivers = body.get('list_of_receivers')
         date_timestamp = body.get('timestamp')
-
-        expense_shared_by = ExpenseSplit.convert_user_id_to_name(expense_split_by)
-
-        add_expense(description, expense_amount, paid_by, expense_shared_by, date_timestamp)
-
-        each_person_share_amount = calculate_each_share(expense_amount, expense_shared_by)
-
-        UsersBalanceUpdate.update_user_balance(paid_by.strip(), expense_shared_by, each_person_share_amount)
-
+        add_expense(description, expense_amount, payee, list_of_receivers, date_timestamp)
+        each_person_share_amount = calculate_share_per_receiver(expense_amount, list_of_receivers)
+        update_all_peer_to_peer_records(payee, list_of_receivers, each_person_share_amount)
         db.session.commit()
-
         return jsonify({
             'success': 'true'
         })
