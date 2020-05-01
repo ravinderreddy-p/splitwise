@@ -7,7 +7,7 @@ from .calculate_share import CalculateShare, calculate_share_per_receiver
 from .database import models
 from .database.models import Expense, db, setup_db, UserBalance, User
 from .expenses import add_expense
-from .user_balance import update_all_peer_to_peer_records
+from .peer_to_peer_balance import update_all_peer_to_peer_records
 from .add_new_user import AddNewUser
 from .user_dashboard import UserDashboard
 
