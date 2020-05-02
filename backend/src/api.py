@@ -1,12 +1,15 @@
 from sqlalchemy import and_, or_
+import simplejson as json
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from .calculate_share import CalculateShare, calculate_each_share
+from .calculate_share import CalculateShare, calculate_share_per_receiver
 from .database import models
-from .database.models import Expense, db, setup_db, UserBalance
+from .database.models import Expense, db, setup_db, UserBalance, User
 from .expenses import add_expense
-from .user_balance import update_user_balance
+from .peer_to_peer_balance import update_all_peer_to_peer_records
+from .add_new_user import AddNewUser
+from .user_dashboard import UserDashboard
 
 
 def create_app(test_config=None):
@@ -20,30 +23,48 @@ def create_app(test_config=None):
         response.headers.add('Access-Control-Allow-Methods', 'GET, PUT, POST, PATCH, DELETE, OPTIONS')
         return response
 
-    @app.route('/')
+    @app.route('/health_check')
     def index():
-        return 'Hello World'
+        return 'I am healthy'
 
     @app.route('/transaction', methods=['POST'])
     def add_transaction():
         body = request.get_json()
         description = body.get('description')
-        paid_by = body.get('paid_by')
+        payee = body.get('payee')
         expense_amount = body.get('amount')
-        team = body.get('team')
-        expense_shared_by = body.get('split_with')
+        list_of_receivers = body.get('list_of_receivers')
         date_timestamp = body.get('timestamp')
-
-        add_expense(description, expense_amount, paid_by, expense_shared_by, date_timestamp)
-
-        each_person_share_amount = calculate_each_share(expense_amount, expense_shared_by)
-
-        update_user_balance(paid_by.strip(), expense_shared_by, each_person_share_amount)
-
+        add_expense(description, expense_amount, payee, list_of_receivers, date_timestamp)
+        each_person_share_amount = calculate_share_per_receiver(expense_amount, list_of_receivers)
+        update_all_peer_to_peer_records(payee, list_of_receivers, each_person_share_amount)
         db.session.commit()
-
         return jsonify({
             'success': 'true'
+        })
+
+    @app.route('/dashboard/<int:user_id>', methods=['GET'])
+    def display_dashboard(user_id):
+        user_id, \
+        total_user_owed_amount, \
+        total_user_lent_amount, \
+        user_owed_to_dict, \
+        user_lent_to_dict = UserDashboard().display_user_dashboard(user_id)
+        return jsonify({
+            'user_id': user_id,
+            'total_user_lent_amount': total_user_lent_amount,
+            'total_user_owed_amount': total_user_owed_amount,
+            'user_lent_to_peers': user_lent_to_dict,
+            'user_owed_to_peers': user_owed_to_dict
+        })
+
+    @app.route('/user', methods=['POST'])
+    def add_user():
+        body = request.get_json()
+        user_name = AddNewUser().create_a_new_user(body)
+        return jsonify({
+            "user": user_name,
+            "success": "true"
         })
 
     return app
