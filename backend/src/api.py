@@ -45,26 +45,23 @@ def create_app(test_config=None):
 
     @app.route('/dashboard/<int:user_id>', methods=['GET'])
     def display_dashboard(user_id):
-        user_name, \
+        user_id, \
         total_user_owed_amount, \
         total_user_lent_amount, \
-        individual_owed_details, \
-        individual_lent_details = UserDashboard().display_user_dashboard(user_id)
-
+        user_owed_to_dict, \
+        user_lent_to_dict = UserDashboard().display_user_dashboard(user_id)
         return jsonify({
-            'user': user_name,
-            'user_lent': total_user_lent_amount,
-            'user_owed': total_user_owed_amount,
-            'user_lent_to': individual_lent_details,
-            'user_owed_to': individual_owed_details
-
+            'user_id': user_id,
+            'total_user_lent_amount': total_user_lent_amount,
+            'total_user_owed_amount': total_user_owed_amount,
+            'user_lent_to_peers': user_lent_to_dict,
+            'user_owed_to_peers': user_owed_to_dict
         })
 
     @app.route('/user', methods=['POST'])
     def add_user():
         body = request.get_json()
         user_name = AddNewUser().add_new_user(body)
-
         return jsonify({
             "user": user_name,
             "success": "true"
