@@ -103,9 +103,11 @@ class User(db.Model):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    email_id = Column(String)
 
-    def __init__(self, name):
+    def __init__(self, name, email_id):
         self.name = name
+        self.email_id = email_id
 
     def insert(self):
         db.session.add()
@@ -116,5 +118,6 @@ class User(db.Model):
 
     def format(self):
         return {
-            'user': self.name
+            'user': self.name,
+            'email_id': self.email_id
         }

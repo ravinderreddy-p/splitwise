@@ -61,7 +61,7 @@ def create_app(test_config=None):
     @app.route('/user', methods=['POST'])
     def add_user():
         body = request.get_json()
-        user_name = AddNewUser().add_new_user(body)
+        user_name = AddNewUser().create_a_new_user(body)
         return jsonify({
             "user": user_name,
             "success": "true"
