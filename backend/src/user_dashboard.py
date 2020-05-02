@@ -17,6 +17,7 @@ class UserDashboard(object):
 
         for user in user1_balance:
             if user.balance < 0:
+                user.balance *= (-1)
                 total_user_owed_amount += user.balance
                 individual_owed_details[user.user2]= user.balance
 
