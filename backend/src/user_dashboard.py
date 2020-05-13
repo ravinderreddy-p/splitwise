@@ -15,33 +15,59 @@ class UserDashboard(object):
         user_lent_details_dict = {}
         peer_to_peer_balance_records = self.get_peer_to_peer_balance_records(user_id)
         for a_peer_to_peer_balance_record in peer_to_peer_balance_records:
-            if self.user_is_peer_1(user_id, a_peer_to_peer_balance_record.user1):
-                if self.user_owed_to_other_peer(a_peer_to_peer_balance_record.balance):
-                    self.multiply_balance_with_negetive_one(a_peer_to_peer_balance_record)
-                    total_user_owed_amount = self.calculate_peer_to_peer_balance_amount(a_peer_to_peer_balance_record,
-                                                                                        user_owed_details_dict,
-                                                                                        total_user_owed_amount,
-                                                                                        a_peer_to_peer_balance_record.user2)
-                else:
-                    total_user_lent_amount = self.calculate_peer_to_peer_balance_amount(a_peer_to_peer_balance_record,
-                                                                                        user_lent_details_dict,
-                                                                                        total_user_lent_amount,
-                                                                                        a_peer_to_peer_balance_record.user2)
-            else:
-                if not self.user_owed_to_other_peer(a_peer_to_peer_balance_record.balance):
-                    total_user_owed_amount = self.calculate_peer_to_peer_balance_amount(a_peer_to_peer_balance_record,
-                                                                                        user_owed_details_dict,
-                                                                                        total_user_owed_amount,
-                                                                                        a_peer_to_peer_balance_record.user1)
-                else:
-                    self.multiply_balance_with_negetive_one(a_peer_to_peer_balance_record)
-                    total_user_lent_amount = self.calculate_peer_to_peer_balance_amount(a_peer_to_peer_balance_record,
-                                                                                        user_lent_details_dict,
-                                                                                        total_user_lent_amount,
-                                                                                        a_peer_to_peer_balance_record.user1)
+            total_user_lent_amount, total_user_owed_amount = self.process_each_record(a_peer_to_peer_balance_record,
+                                                                                      total_user_lent_amount,
+                                                                                      total_user_owed_amount, user_id,
+                                                                                      user_lent_details_dict,
+                                                                                      user_owed_details_dict)
         return user_id, total_user_owed_amount, total_user_lent_amount, \
                user_owed_details_dict, user_lent_details_dict
 
+    def process_each_record(self, a_peer_to_peer_balance_record, total_user_lent_amount, total_user_owed_amount,
+                            user_id, user_lent_details_dict, user_owed_details_dict):
+        if self.user_is_peer_1(user_id, a_peer_to_peer_balance_record.user1):
+            total_user_lent_amount, total_user_owed_amount = self.process_a(a_peer_to_peer_balance_record,
+                                                                            total_user_lent_amount,
+                                                                            total_user_owed_amount,
+                                                                            user_lent_details_dict,
+                                                                            user_owed_details_dict)
+        else:
+            total_user_lent_amount, total_user_owed_amount = self.process_b(a_peer_to_peer_balance_record,
+                                                                            total_user_lent_amount,
+                                                                            total_user_owed_amount,
+                                                                            user_lent_details_dict,
+                                                                            user_owed_details_dict)
+        return total_user_lent_amount, total_user_owed_amount
+
+    def process_b(self, a_peer_to_peer_balance_record, total_user_lent_amount, total_user_owed_amount,
+                  user_lent_details_dict, user_owed_details_dict):
+        if not self.user_owed_to_other_peer(a_peer_to_peer_balance_record.balance):
+            total_user_owed_amount = self.calculate_peer_to_peer_balance_amount(a_peer_to_peer_balance_record,
+                                                                                user_owed_details_dict,
+                                                                                total_user_owed_amount,
+                                                                                a_peer_to_peer_balance_record.user1)
+        else:
+            self.multiply_balance_with_negetive_one(a_peer_to_peer_balance_record)
+            total_user_lent_amount = self.calculate_peer_to_peer_balance_amount(a_peer_to_peer_balance_record,
+                                                                                user_lent_details_dict,
+                                                                                total_user_lent_amount,
+                                                                                a_peer_to_peer_balance_record.user1)
+        return total_user_lent_amount, total_user_owed_amount
+
+    def process_a(self, a_peer_to_peer_balance_record, total_user_lent_amount, total_user_owed_amount,
+                  user_lent_details_dict, user_owed_details_dict):
+        if self.user_owed_to_other_peer(a_peer_to_peer_balance_record.balance):
+            self.multiply_balance_with_negetive_one(a_peer_to_peer_balance_record)
+            total_user_owed_amount = self.calculate_peer_to_peer_balance_amount(a_peer_to_peer_balance_record,
+                                                                                user_owed_details_dict,
+                                                                                total_user_owed_amount,
+                                                                                a_peer_to_peer_balance_record.user2)
+        else:
+            total_user_lent_amount = self.calculate_peer_to_peer_balance_amount(a_peer_to_peer_balance_record,
+                                                                                user_lent_details_dict,
+                                                                                total_user_lent_amount,
+                                                                                a_peer_to_peer_balance_record.user2)
+        return total_user_lent_amount, total_user_owed_amount
 
     def multiply_balance_with_negetive_one(self, a_balance_record):
         a_balance_record.balance *= (-1)

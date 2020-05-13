@@ -1,27 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy
+from backend.src.database.setup import db
+from flask_login import UserMixin
 from sqlalchemy import Integer, Column, String, Date, DateTime, Float
-from flask_migrate import Migrate
-
-database_name = 'split_wise'
-database_path = 'postgres://pravinderreddy@localhost:5432/split_wise'
-
-db = SQLAlchemy()
-
-'''
-setup_db(app)
-    binds a flask application and a SQLAlchemy service
-'''
-
-
-def setup_db(app, database_path=database_path):
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_path
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.app = app
-    migrate = Migrate()
-    db.init_app(app)
-    migrate.init_app(app, db)
-    # db.create_all()
-
+from werkzeug.security import generate_password_hash, check_password_hash
 
 '''
 Expenses
@@ -99,15 +79,17 @@ User
 '''
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String)
     email_id = Column(String)
+    password_hash = Column(String)
 
     def __init__(self, name, email_id):
         self.name = name
         self.email_id = email_id
+        # self.password_hash = password_hash
 
     def insert(self):
         db.session.add()
@@ -119,5 +101,12 @@ class User(db.Model):
     def format(self):
         return {
             'user': self.name,
-            'email_id': self.email_id
+            'email_id': self.email_id,
+            'password_hash': self.password_hash
         }
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
