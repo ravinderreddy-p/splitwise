@@ -77,12 +77,12 @@ def create_app(test_config=None):
             "success": "true"
         })
 
-    @app.route('/index', methods=['GET'])
-    @app.route('/home', methods=['GET'])
-    @app.route('/')
-    def home():
-        user = {'username': 'Miguel'}
-        return render_template('index.html')
+    # @app.route('/index', methods=['GET'])
+    # @app.route('/home', methods=['GET'])
+    # @app.route('/')
+    # def home():
+    #     user = {'username': 'Miguel'}
+    #     return render_template('index.html')
 
     # @app.route('/login', methods=['GET', 'POST'])
     # def signin():
