@@ -2,6 +2,7 @@ from backend.src.database.setup import db
 from flask_login import UserMixin
 from sqlalchemy import Integer, Column, String, Date, DateTime, Float
 from werkzeug.security import generate_password_hash, check_password_hash
+# from backend.src.api import login
 
 '''
 Expenses
@@ -77,6 +78,9 @@ class UserBalance(db.Model):
 '''
 User
 '''
+# @login.user_loader
+# def load_user(user_id):
+#     return User.get(user_id)
 
 
 class User(UserMixin, db.Model):
